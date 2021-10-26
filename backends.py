@@ -78,9 +78,9 @@ setup_function = SetupContext
 
 @setup_function
 def setup_numpy(device='cpu'):
-    os.environ.update(
-        OMP_NUM_THREADS='1',
-    )
+    #os.environ.update(
+    #    OMP_NUM_THREADS='1',
+    #)
     yield
 
 
@@ -130,14 +130,14 @@ def setup_cupy(device='cpu'):
 
 @setup_function
 def setup_jax(device='cpu'):
-    os.environ.update(
-        XLA_FLAGS=(
-            '--xla_cpu_multi_thread_eigen=false '
-            'intra_op_parallelism_threads=1 '
-            'inter_op_parallelism_threads=1 '
-        ),
-        XLA_PYTHON_CLIENT_PREALLOCATE='false',
-    )
+    #os.environ.update(
+        #XLA_FLAGS=(
+        #    '--xla_cpu_multi_thread_eigen=false '
+        #    'intra_op_parallelism_threads=1 '
+        #    'inter_op_parallelism_threads=1 '
+        #),
+        #XLA_PYTHON_CLIENT_PREALLOCATE='false',
+    #)
 
     if device in ('cpu', 'gpu'):
         os.environ.update(JAX_PLATFORM_NAME=device)
@@ -161,10 +161,11 @@ def setup_jax(device='cpu'):
 
 @setup_function
 def setup_pytorch(device='cpu'):
-    os.environ.update(
-        OMP_NUM_THREADS='1',
-    )
+    #os.environ.update(
+    #    OMP_NUM_THREADS='1',
+    #)
     import torch
+    #torch._C._jit_override_can_fuse_on_cpu(False)
     if device == 'gpu':
         assert torch.cuda.is_available()
         assert torch.cuda.device_count() > 0

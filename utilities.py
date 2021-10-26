@@ -22,7 +22,8 @@ class Timer:
 
 def estimate_repetitions(func, args=(), target_time=10, powers_of=10):
     # call function once for warm-up
-    func(*args)
+    for _ in range(5):
+        func(*args)
 
     # call again and measure time
     with Timer() as t:

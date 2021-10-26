@@ -6,13 +6,14 @@ from collections import defaultdict
 
 import click
 import matplotlib
+import numpy
 matplotlib.use('Agg')
 
 # stupid regex matching ahead
 RE_RESULT = re.compile(r''.join([
     r'\s*',
     r'(?P<size>(?:\d|,)+)\s*',
-    r'(?P<backend>\w+)\s*',
+    r'(?P<backend>(?:\w|\.)+)\s*',
     *(
         rf'(?P<{name}>(?:\d|\.|,)+)\s*' for name in
         ('calls', 'mean', 'stdev', 'min', 'p25', 'median', 'p75', 'max', 'delta')
@@ -30,6 +31,7 @@ BACKEND_COLORS = {
     'pytorch': 'C5',
     'tensorflow': 'C6',
     'theano': 'C7',
+    'pytorch1.9': 'C8',
 }
 
 
@@ -44,7 +46,7 @@ def plot_results(records, benchmark, platform, outfile, plot_delta=False):
         x = backend_values['size']
         if plot_delta:
             y = backend_values['delta']
-            ylabel = 'Relative speedup'
+            ylabel = 'Relative speedup over numpy'
         else:
             y = backend_values['mean']
             ylabel = 'Mean runtime (s)'
@@ -60,11 +62,10 @@ def plot_results(records, benchmark, platform, outfile, plot_delta=False):
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
 
-        plt.xlabel('Problem size (# elements)')
+        plt.xlabel('log2 problem size (# elements)')
         plt.ylabel(ylabel)
 
-        plt.xscale('log')
-        plt.yscale('log')
+        plt.xscale('log', base=2)
 
     plt.title(f'Benchmark "{benchmark}" on {platform.upper()}')
     fig.canvas.draw()
@@ -161,7 +162,7 @@ def main(infile, outdir, plot_delta):
     os.makedirs(outdir, exist_ok=True)
 
     for benchmark, platform in records.keys():
-        outfile = os.path.join(outdir, f'bench-{benchmark}-{platform}.png')
+        outfile = os.path.join(outdir, f'bench-{benchmark}-{platform}.svg')
         plot_results(records, benchmark, platform, outfile, plot_delta)
         click.echo(f'Wrote {outfile}')
 
